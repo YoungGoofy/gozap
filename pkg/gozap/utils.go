@@ -5,7 +5,7 @@ import (
 	"github.com/pelletier/go-toml"
 )
 
-func getDataFromConf() (string, string) {
+func GetDataFromConf() (string, string) {
 	conf, err := toml.LoadFile("configs/config.toml")
 	if err != nil {
 		fmt.Println("Error: ", err)

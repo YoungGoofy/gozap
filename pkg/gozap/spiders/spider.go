@@ -14,14 +14,10 @@ type SpiderScan struct {
 	SessionId string
 }
 
-func NewSpiderScan(url, apiKey string) *SpiderScan {
-	return &SpiderScan{url: url, apiKey: apiKey, SessionId: ""}
-}
-
-func (s *SpiderScan) GetResult() (UrlsInScope, error) {
+func GetResult(apiKey, sessionId string) (UrlsInScope, error) {
 	var result Result
 	resp, err := http.Get(
-		fmt.Sprintf("http://localhost:8080/JSON/spider/view/fullResults/?apikey=%s&scanId=%s", s.apiKey, s.SessionId))
+		fmt.Sprintf("http://localhost:8080/JSON/spider/view/fullResults/?apikey=%s&scanId=%s", apiKey, sessionId))
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +33,8 @@ func (s *SpiderScan) GetResult() (UrlsInScope, error) {
 	return outputStruct, nil
 }
 
-func (s *SpiderScan) GetStatus() (string, error) {
-	resp, err := http.Get(fmt.Sprintf("http://localhost:8080/JSON/spider/view/status/?apikey=%s&scanId=%s", s.apiKey, s.SessionId))
+func GetStatus(apiKey, sessionId string) (string, error) {
+	resp, err := http.Get(fmt.Sprintf("http://localhost:8080/JSON/spider/view/status/?apikey=%s&scanId=%s", apiKey, sessionId))
 	if err != nil {
 		return "", err
 	}
@@ -57,24 +53,23 @@ func (s *SpiderScan) GetStatus() (string, error) {
 	return result.Status, nil
 }
 
-func (s *SpiderScan) GetConnectionId() error {
+func GetConnectionId(apiKey, url string) (string, error) {
 	resp, err := http.Get(
-		fmt.Sprintf("http://localhost:8080/JSON/spider/action/scan/?apikey=%s&url=%s&contextName=&recurse=", s.apiKey, s.url))
+		fmt.Sprintf("http://localhost:8080/JSON/spider/action/scan/?apikey=%s&url=%s&contextName=&recurse=", apiKey, url))
 	if err != nil {
-		return errors.New(fmt.Sprintf("error: %s", err))
+		return "", errors.New(fmt.Sprintf("error: %s", err))
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return errors.New(fmt.Sprintf("error: %s", err))
+		return "", errors.New(fmt.Sprintf("error: %s", err))
 	}
 	fmt.Println("Answer: ", string(body))
 	id, err := decode(string(body))
 	if err != nil {
-		return errors.New(fmt.Sprintf("error: %s", err))
+		return "", errors.New(fmt.Sprintf("error: %s", err))
 	}
-	s.SessionId = id
-	return nil
+	return id, nil
 }
 
 func decode(item string) (string, error) {
