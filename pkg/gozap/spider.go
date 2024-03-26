@@ -5,17 +5,17 @@ import (
 	"github.com/YoungTreezy/gozap/pkg/gozap/spiders"
 )
 
-type SpiderScan struct {
+type Scan struct {
 	url       string
 	apiKey    string
 	sessionId string
 }
 
-func NewSpiderScan(url, apiKey string) *SpiderScan {
-	return &SpiderScan{url: url, apiKey: apiKey, sessionId: ""}
+func NewScan(url, apiKey string) *Scan {
+	return &Scan{url: url, apiKey: apiKey, sessionId: "4"}
 }
 
-func (s *SpiderScan) GetConnectionId() error {
+func (s *Scan) GetConnectionId() error {
 	id, err := spiders.GetConnectionId(s.apiKey, s.url)
 	s.sessionId = id
 	if err != nil {
@@ -24,7 +24,7 @@ func (s *SpiderScan) GetConnectionId() error {
 	return nil
 }
 
-func (s *SpiderScan) GetStatus() (string, error) {
+func (s *Scan) GetStatus() (string, error) {
 	if s.sessionId == "" {
 		return "", errors.New("any session not found")
 	}
@@ -35,7 +35,7 @@ func (s *SpiderScan) GetStatus() (string, error) {
 	}
 }
 
-func (s *SpiderScan) GetFullResult() (spiders.UrlsInScope, error) {
+func (s *Scan) GetFullResult() (spiders.UrlsInScope, error) {
 	if s.sessionId == "" {
 		return nil, errors.New("any session not found")
 	}

@@ -14,3 +14,13 @@ func GetDataFromConf() (string, string) {
 	url := conf.Get("api.urls.url").(string)
 	return url, key
 }
+
+func GetSessionCount() string {
+	conf, err := toml.LoadFile("configs/config.toml")
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return ""
+	}
+	count := conf.Get("session.count").(string)
+	return count
+}

@@ -8,12 +8,6 @@ import (
 	"net/http"
 )
 
-type SpiderScan struct {
-	url       string
-	apiKey    string
-	SessionId string
-}
-
 func GetResult(apiKey, sessionId string) (UrlsInScope, error) {
 	var result Result
 	resp, err := http.Get(
@@ -29,6 +23,7 @@ func GetResult(apiKey, sessionId string) (UrlsInScope, error) {
 	if err = json.Unmarshal([]byte(string(body)), &result); err != nil {
 		return nil, errors.New(fmt.Sprintf("error: %s", err))
 	}
+	// TODO: remove FullResults[0].UrlsInScope
 	outputStruct := result.FullResults[0].UrlsInScope
 	return outputStruct, nil
 }
@@ -46,7 +41,7 @@ func GetStatus(apiKey, sessionId string) (string, error) {
 	}
 
 	var result StatusResult
-	if err := json.Unmarshal(body, &result); err != nil {
+	if err = json.Unmarshal(body, &result); err != nil {
 		return "", err
 	}
 
