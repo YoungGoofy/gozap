@@ -14,7 +14,7 @@ type Spider struct {
 }
 
 func NewSpider(scanner Scan) *Spider {
-	sessionId, err := GetSessionCount()
+	sessionId, err := GetSpiderSessionCount()
 	if err != nil {
 		log.Println(err)
 		return nil
@@ -24,7 +24,7 @@ func NewSpider(scanner Scan) *Spider {
 
 func (s *Spider) GetConnectionId() error {
 	id, err := spiders.GetConnectionId(s.scanner.apiKey, s.scanner.url)
-	if err = PostSessionCount(id); err != nil {
+	if err = PostSpiderSessionCount(id); err != nil {
 		return err
 	}
 	s.sessionId = id
@@ -61,10 +61,10 @@ func (s *Spider) StopScan() error {
 		return errors.New("any session not found")
 	}
 	if status := spiders.EditScan(s.scanner.apiKey, s.sessionId, "stop"); status == http.StatusOK {
-		log.Printf("Status: %d", status)
+		log.Printf("\nGood stop\nStatus: %d", status)
 		return nil
 	} else {
-		return errors.New(fmt.Sprintf("Status: %d", status))
+		return errors.New(fmt.Sprintf("\nBad stop\nStatus: %d", status))
 	}
 }
 
@@ -73,10 +73,10 @@ func (s *Spider) PauseScan() error {
 		return errors.New("any session not found")
 	}
 	if status := spiders.EditScan(s.scanner.apiKey, s.sessionId, "pause"); status == http.StatusOK {
-		log.Printf("Status: %d", status)
+		log.Printf("\nGood pause\nStatus: %d", status)
 		return nil
 	} else {
-		return errors.New(fmt.Sprintf("Status: %d", status))
+		return errors.New(fmt.Sprintf("\nBad pause\nStatus: %d", status))
 	}
 }
 
@@ -85,9 +85,9 @@ func (s *Spider) ResumeScan() error {
 		return errors.New("any session not found")
 	}
 	if status := spiders.EditScan(s.scanner.apiKey, s.sessionId, "resume"); status == http.StatusOK {
-		log.Printf("Status: %d", status)
+		log.Printf("\nGood resume\nStatus: %d", status)
 		return nil
 	} else {
-		return errors.New(fmt.Sprintf("Status: %d", status))
+		return errors.New(fmt.Sprintf("\nBad resume\nStatus: %d", status))
 	}
 }

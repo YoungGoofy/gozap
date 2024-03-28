@@ -24,21 +24,21 @@ func GetDataFromConf() (string, string) {
 	return url, key
 }
 
-func GetSessionCount() (string, error) {
+func GetSpiderSessionCount() (string, error) {
 	conf, err := toml.LoadFile("pkg/configs/config.toml")
 	if err != nil {
 		fmt.Println("Error: ", err)
 		return "", err
 	}
-	count := conf.Get("session.count").(string)
+	count := conf.Get("session.spider.count").(string)
 	return count, nil
 }
 
-func PostSessionCount(id string) error {
-	conf, err := toml.LoadFile("configs/config.toml")
+func PostSpiderSessionCount(id string) error {
+	conf, err := toml.LoadFile("pkg/configs/config.toml")
 	if err != nil {
 		return errors.New(fmt.Sprintf("bad connect to file: %s", err))
 	}
-	conf.Set("session.count", id)
+	conf.Set("session.spider.count", id)
 	return nil
 }
