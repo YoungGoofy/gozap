@@ -2,21 +2,31 @@ package gozap
 
 import (
 	"errors"
+	"fmt"
 	"github.com/YoungTreezy/gozap/pkg/gozap/spiders"
+	"log"
+	"net/http"
 )
 
-type Scan struct {
-	url       string
-	apiKey    string
+type Spider struct {
+	scanner   Scan
 	sessionId string
 }
 
-func NewScan(url, apiKey string) *Scan {
-	return &Scan{url: url, apiKey: apiKey, sessionId: "4"}
+func NewSpider(scanner Scan) *Spider {
+	sessionId, err := GetSessionCount()
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	return &Spider{scanner: scanner, sessionId: sessionId}
 }
 
-func (s *Scan) GetConnectionId() error {
-	id, err := spiders.GetConnectionId(s.apiKey, s.url)
+func (s *Spider) GetConnectionId() error {
+	id, err := spiders.GetConnectionId(s.scanner.apiKey, s.scanner.url)
+	if err = PostSessionCount(id); err != nil {
+		return err
+	}
 	s.sessionId = id
 	if err != nil {
 		return err
@@ -24,24 +34,60 @@ func (s *Scan) GetConnectionId() error {
 	return nil
 }
 
-func (s *Scan) GetStatus() (string, error) {
+func (s *Spider) GetStatus() (string, error) {
 	if s.sessionId == "" {
 		return "", errors.New("any session not found")
 	}
-	if status, err := spiders.GetStatus(s.apiKey, s.sessionId); err != nil {
+	if status, err := spiders.GetStatus(s.scanner.apiKey, s.sessionId); err != nil {
 		return "", err
 	} else {
 		return status, nil
 	}
 }
 
-func (s *Scan) GetFullResult() (spiders.UrlsInScope, error) {
+func (s *Spider) GetResult() (spiders.UrlsInScope, error) {
 	if s.sessionId == "" {
 		return nil, errors.New("any session not found")
 	}
-	if result, err := spiders.GetResult(s.apiKey, s.sessionId); err != nil {
+	if result, err := spiders.GetResult(s.scanner.apiKey, s.sessionId); err != nil {
 		return nil, err
 	} else {
 		return result, nil
+	}
+}
+
+func (s *Spider) StopScan() error {
+	if s.sessionId == "" {
+		return errors.New("any session not found")
+	}
+	if status := spiders.EditScan(s.scanner.apiKey, s.sessionId, "stop"); status == http.StatusOK {
+		log.Printf("Status: %d", status)
+		return nil
+	} else {
+		return errors.New(fmt.Sprintf("Status: %d", status))
+	}
+}
+
+func (s *Spider) PauseScan() error {
+	if s.sessionId == "" {
+		return errors.New("any session not found")
+	}
+	if status := spiders.EditScan(s.scanner.apiKey, s.sessionId, "pause"); status == http.StatusOK {
+		log.Printf("Status: %d", status)
+		return nil
+	} else {
+		return errors.New(fmt.Sprintf("Status: %d", status))
+	}
+}
+
+func (s *Spider) ResumeScan() error {
+	if s.sessionId == "" {
+		return errors.New("any session not found")
+	}
+	if status := spiders.EditScan(s.scanner.apiKey, s.sessionId, "resume"); status == http.StatusOK {
+		log.Printf("Status: %d", status)
+		return nil
+	} else {
+		return errors.New(fmt.Sprintf("Status: %d", status))
 	}
 }

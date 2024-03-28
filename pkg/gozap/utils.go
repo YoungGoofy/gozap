@@ -1,9 +1,18 @@
 package gozap
 
 import (
+	"errors"
 	"fmt"
 	"github.com/pelletier/go-toml"
 )
+
+//type Scanner interface {
+//	Stop()
+//	Pause()
+//	Resume()
+//	GetConnectionId() error
+//	GetStatus() (string, error)
+//}
 
 func GetDataFromConf() (string, string) {
 	conf, err := toml.LoadFile("configs/config.toml")
@@ -15,12 +24,21 @@ func GetDataFromConf() (string, string) {
 	return url, key
 }
 
-func GetSessionCount() string {
-	conf, err := toml.LoadFile("configs/config.toml")
+func GetSessionCount() (string, error) {
+	conf, err := toml.LoadFile("pkg/configs/config.toml")
 	if err != nil {
 		fmt.Println("Error: ", err)
-		return ""
+		return "", err
 	}
 	count := conf.Get("session.count").(string)
-	return count
+	return count, nil
+}
+
+func PostSessionCount(id string) error {
+	conf, err := toml.LoadFile("configs/config.toml")
+	if err != nil {
+		return errors.New(fmt.Sprintf("bad connect to file: %s", err))
+	}
+	conf.Set("session.count", id)
+	return nil
 }

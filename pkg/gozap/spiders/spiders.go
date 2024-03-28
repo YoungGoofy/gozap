@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -23,7 +24,6 @@ func GetResult(apiKey, sessionId string) (UrlsInScope, error) {
 	if err = json.Unmarshal([]byte(string(body)), &result); err != nil {
 		return nil, errors.New(fmt.Sprintf("error: %s", err))
 	}
-	// TODO: remove FullResults[0].UrlsInScope
 	outputStruct := result.FullResults[0].UrlsInScope
 	return outputStruct, nil
 }
@@ -65,6 +65,20 @@ func GetConnectionId(apiKey, url string) (string, error) {
 		return "", errors.New(fmt.Sprintf("error: %s", err))
 	}
 	return id, nil
+}
+
+func EditScan(apiKey, sessionId, action string) int {
+	resp, err := http.Get(
+		fmt.Sprintf("http://localhost:8080/JSON/spider/action/%s/?apikey=%s&scanId=%s", action, apiKey, sessionId))
+	if err != nil {
+		log.Println(errors.New("bad request in StopScan"))
+		return -1
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusBadRequest {
+		return http.StatusBadRequest
+	}
+	return http.StatusOK
 }
 
 func decode(item string) (string, error) {
