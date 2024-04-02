@@ -1,4 +1,4 @@
-module github.com/YoungTreezy/gozap
+module github.com/YoungGoofy/gozap
 
 go 1.22
 
