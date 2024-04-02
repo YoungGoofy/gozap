@@ -22,15 +22,15 @@ func NewSpider(scanner Scan) *Spider {
 	return &Spider{scanner: scanner, sessionId: sessionId}
 }
 
-func (s *Spider) GetConnectionId() error {
+func (s *Spider) GetSessionId() error {
 	id, err := spiders.GetConnectionId(s.scanner.apiKey, s.scanner.url)
-	if err = PostSpiderSessionCount(id); err != nil {
-		return err
-	}
-	s.sessionId = id
 	if err != nil {
 		return err
 	}
+	if err = PostSessionCount(id, "spider"); err != nil {
+		return err
+	}
+	s.sessionId = id
 	return nil
 }
 

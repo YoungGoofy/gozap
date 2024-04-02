@@ -34,11 +34,11 @@ func GetSpiderSessionCount() (string, error) {
 	return count, nil
 }
 
-func PostSpiderSessionCount(id string) error {
+func PostSessionCount(id, scannerType string) error {
 	conf, err := toml.LoadFile("pkg/configs/config.toml")
 	if err != nil {
 		return errors.New(fmt.Sprintf("bad connect to file: %s", err))
 	}
-	conf.Set("session.spider.count", id)
+	conf.Set(fmt.Sprintf("session.%s.count", scannerType), id)
 	return nil
 }
