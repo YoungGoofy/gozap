@@ -3,7 +3,8 @@ package gozap
 import (
 	"errors"
 	"fmt"
-	"github.com/YoungTreezy/gozap/pkg/gozap/ascan"
+	"github.com/YoungGoofy/gozap/pkg/gozap/ascan"
+	"github.com/YoungGoofy/gozap/pkg/gozap/utils"
 	"log"
 	"net/http"
 )
@@ -23,7 +24,7 @@ func (as *ActiveScanner) GetSessionId() error {
 	if err != nil {
 		return err
 	}
-	if err = PostSessionCount(sessionId, "ascan"); err != nil {
+	if err = utils.PostSessionCount(sessionId, "ascan"); err != nil {
 		return err
 	}
 	as.sessionId = sessionId

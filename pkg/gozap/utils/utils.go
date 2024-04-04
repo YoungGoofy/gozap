@@ -1,4 +1,4 @@
-package gozap
+package utils
 
 import (
 	"errors"
@@ -25,7 +25,7 @@ func GetDataFromConf() (string, string) {
 }
 
 func GetSpiderSessionCount() (string, error) {
-	conf, err := toml.LoadFile("pkg/configs/config.toml")
+	conf, err := toml.LoadFile("configs/config.toml")
 	if err != nil {
 		fmt.Println("Error: ", err)
 		return "", err
@@ -35,7 +35,7 @@ func GetSpiderSessionCount() (string, error) {
 }
 
 func PostSessionCount(id, scannerType string) error {
-	conf, err := toml.LoadFile("pkg/configs/config.toml")
+	conf, err := toml.LoadFile("configs/config.toml")
 	if err != nil {
 		return errors.New(fmt.Sprintf("bad connect to file: %s", err))
 	}

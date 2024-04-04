@@ -1,6 +1,6 @@
 package spiders
 
-type UrlsInScope []struct {
+type UrlsInScope struct {
 	Processed          string `json:"processed"`
 	StatusReason       string `json:"statusReason"`
 	Method             string `json:"method"`
@@ -12,7 +12,7 @@ type UrlsInScope []struct {
 
 type Result struct {
 	FullResults []struct {
-		UrlsInScope    UrlsInScope   `json:"urlsInScope"`
+		UrlsInScope    []UrlsInScope `json:"urlsInScope"`
 		UrlsOutOfScope []string      `json:"urlsOutOfScope"`
 		UrlsIoError    []interface{} `json:"urlsIoError"`
 	} `json:"fullResults"`

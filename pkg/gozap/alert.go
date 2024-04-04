@@ -1,7 +1,7 @@
 package gozap
 
 import (
-	"github.com/YoungTreezy/gozap/pkg/gozap/alerts"
+	"github.com/YoungGoofy/gozap/pkg/gozap/alerts"
 )
 
 func (s *Scan) CountOfAlerts() (string, error) {

@@ -3,23 +3,26 @@ package gozap
 import (
 	"errors"
 	"fmt"
-	"github.com/YoungTreezy/gozap/pkg/gozap/spiders"
+	"github.com/YoungGoofy/gozap/pkg/gozap/spiders"
 	"log"
 	"net/http"
 )
 
-type Spider struct {
-	scanner   Scan
-	sessionId string
-}
+type (
+	Spider struct {
+		scanner   Scan
+		sessionId string
+	}
+	UrlsInScope []spiders.UrlsInScope
+)
 
 func NewSpider(scanner Scan) *Spider {
-	sessionId, err := GetSpiderSessionCount()
-	if err != nil {
-		log.Println(err)
-		return nil
-	}
-	return &Spider{scanner: scanner, sessionId: sessionId}
+	//sessionId, err := GetSpiderSessionCount()
+	//if err != nil {
+	//	log.Println(err)
+	//	return nil
+	//}
+	return &Spider{scanner: scanner /*, sessionId: sessionId*/}
 }
 
 func (s *Spider) GetSessionId() error {
@@ -27,9 +30,9 @@ func (s *Spider) GetSessionId() error {
 	if err != nil {
 		return err
 	}
-	if err = PostSessionCount(id, "spider"); err != nil {
-		return err
-	}
+	//if err = PostSessionCount(id, "spider"); err != nil {
+	//	return err
+	//}
 	s.sessionId = id
 	return nil
 }
@@ -45,14 +48,46 @@ func (s *Spider) GetStatus() (string, error) {
 	}
 }
 
-func (s *Spider) GetResult() (spiders.UrlsInScope, error) {
-	if s.sessionId == "" {
-		return nil, errors.New("any session not found")
-	}
+func (s *Spider) GetResult() (UrlsInScope, error) {
 	if result, err := spiders.GetResult(s.scanner.apiKey, s.sessionId); err != nil {
 		return nil, err
 	} else {
-		return result, nil
+		urlsInScope := result.FullResults[0].UrlsInScope
+		return urlsInScope, nil
+	}
+}
+
+// AsyncGetResult TODO: изменить остановку программы с помощью GetStatus
+func (s *Spider) AsyncGetResult(ch chan<- UrlsInScope, errCh chan<- error, done <-chan struct{}) {
+	/** This method return results in runtime*/
+	var lastUrl UrlsInScope
+	maxCount := 0
+	minCount := 0
+	for {
+		select {
+		case <-done: // Проверяем, получили ли сигнал о завершении
+			return
+		default:
+			// Отправляем запрос на сервер
+			result, err := spiders.GetResult(s.scanner.apiKey, s.sessionId)
+			if err != nil {
+				errCh <- err
+			}
+			urlsInScope := result.FullResults[0].UrlsInScope
+			if len(urlsInScope) > maxCount {
+				maxCount = len(urlsInScope)
+			} else {
+				continue
+			}
+			// Проверяем, что получены непустые данные
+			if len(urlsInScope) > 0 {
+				// Сохраняем последний элемент
+				lastUrl = urlsInScope[minCount : maxCount-1]
+				// Отправляем последний элемент по каналу
+				ch <- lastUrl
+			}
+			minCount = maxCount - 1
+		}
 	}
 }
 
