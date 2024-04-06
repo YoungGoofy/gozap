@@ -10,13 +10,13 @@ import (
 
 type (
 	Spider struct {
-		scanner   Scan
+		scanner   MainScan
 		sessionId string
 	}
 	UrlsInScope []spiders.UrlsInScope
 )
 
-func NewSpider(scanner Scan) *Spider {
+func NewSpider(scanner MainScan) *Spider {
 	//sessionId, err := GetSpiderSessionCount()
 	//if err != nil {
 	//	log.Println(err)

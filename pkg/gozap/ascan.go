@@ -10,11 +10,11 @@ import (
 )
 
 type ActiveScanner struct {
-	scanner   Scan
+	scanner   MainScan
 	sessionId string
 }
 
-func NewActiveScanner(s Scan) *ActiveScanner {
+func NewActiveScanner(s MainScan) *ActiveScanner {
 	sessionId := "0"
 	return &ActiveScanner{scanner: s, sessionId: sessionId}
 }
