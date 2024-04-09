@@ -57,8 +57,7 @@ func (s *Spider) GetResult() (UrlsInScope, error) {
 	}
 }
 
-// AsyncGetResult TODO: изменить остановку программы с помощью GetStatus
-func (s *Spider) AsyncGetResult(ch chan<- UrlsInScope, errCh chan<- error, done <-chan struct{}) {
+func (s *Spider) AsyncGetResult(ch chan<- UrlsInScope, errCh chan<- error, statusCh chan string, done <-chan struct{}) {
 	/** This method return results in runtime*/
 	var lastUrl UrlsInScope
 	maxCount := 0
@@ -88,6 +87,11 @@ func (s *Spider) AsyncGetResult(ch chan<- UrlsInScope, errCh chan<- error, done 
 			}
 			minCount = maxCount - 1
 		}
+		status, err := spiders.GetStatus(s.scanner.apiKey, s.sessionId)
+		if err != nil {
+			errCh <- err
+		}
+		statusCh <- status
 	}
 }
 
