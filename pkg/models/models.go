@@ -1,4 +1,4 @@
-package spiders
+package models
 
 type UrlsInScope struct {
 	Processed          string `json:"processed"`
@@ -20,4 +20,8 @@ type Result struct {
 
 type StatusResult struct {
 	Status string `json:"status"`
+}
+
+type ScanProgress struct {
+	ScanProgress []interface{}
 }
