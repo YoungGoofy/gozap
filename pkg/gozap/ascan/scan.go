@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/YoungGoofy/gozap/pkg/models"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -71,4 +72,39 @@ func GetAlertsId(apiKey, sessionId string) ([]string, error) {
 		return nil, errors.New(fmt.Sprintf("bad unmarshal: %s", err))
 	}
 	return ids["alertsIds"], nil
+}
+
+func ScanProgress(apikey, sessionId string) (models.ScanProgress, error) {
+	var progress models.ScanProgress
+	resp, err := http.Get(fmt.Sprintf("http://localhost:8080/JSON/ascan/view/scanProgress/?apikey=%s&scanId=%s", apikey, sessionId))
+	if err != nil {
+		return progress, errors.New(fmt.Sprintf("bad request: %v", err))
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return progress, err
+	}
+	if err = json.Unmarshal(body, &progress); err != nil {
+		return progress, errors.New(fmt.Sprintf("bad unmarshal: %s", err))
+	}
+	return progress, nil
+}
+
+func SkipScanner(apiKey, sessionId, pluginId string) (string, error) {
+	result := make(map[string]string)
+	resp, err := http.Get(fmt.Sprintf("http://localhost:8080/JSON/ascan/action/skipScanner/?apikey=%s&scanId=%s&scannerId=%s", apiKey, sessionId, pluginId))
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("bad request: %v", err))
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	if err = json.Unmarshal(body, &result); err != nil {
+		return "", errors.New(fmt.Sprintf("bad unmarshal in SkipScanner: %s", err))
+	}
+	return result["Result"], nil
 }

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/YoungGoofy/gozap/pkg/gozap/ascan"
-	"github.com/YoungGoofy/gozap/pkg/gozap/utils"
 	"log"
 	"net/http"
 )
@@ -15,18 +14,18 @@ type ActiveScanner struct {
 }
 
 func NewActiveScanner(s MainScan) *ActiveScanner {
-	sessionId := "0"
+	sessionId := "1"
 	return &ActiveScanner{scanner: s, sessionId: sessionId}
 }
 
-func (as *ActiveScanner) GetSessionId() error {
+func (as *ActiveScanner) StartActiveScan() error {
 	sessionId, err := ascan.GetSessionId(as.scanner.apiKey, as.scanner.url)
 	if err != nil {
 		return err
 	}
-	if err = utils.PostSessionCount(sessionId, "ascan"); err != nil {
-		return err
-	}
+	//if err = utils.PostSessionCount(sessionId, "ascan"); err != nil {
+	//	return err
+	//}
 	as.sessionId = sessionId
 	return nil
 }
@@ -87,4 +86,27 @@ func (as *ActiveScanner) GetAlertIds() ([]string, error) {
 		return nil, err
 	}
 	return ids, nil
+}
+
+func (as *ActiveScanner) ScanProgress() ([]interface{}, error) {
+	if as.sessionId == "" {
+		return nil, errors.New("any session not found")
+	}
+	scanProgress, err := ascan.ScanProgress(as.scanner.apiKey, as.sessionId)
+	if err != nil {
+		return nil, err
+	}
+	r := scanProgress.ScanProgress[1].(map[string]interface{})["HostProcess"].([]interface{})
+	return r, nil
+}
+
+func (as *ActiveScanner) SkipScanner(pluginId string) (string, error) {
+	if as.sessionId == "" {
+		return "", errors.New("any session not found")
+	}
+	if status, err := ascan.SkipScanner(as.scanner.apiKey, as.sessionId, pluginId); err != nil {
+		return "", err
+	} else {
+		return status, nil
+	}
 }
