@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/YoungGoofy/gozap/pkg/models"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-func GetResult(apiKey, sessionId string) (Result, error) {
-	var result Result
+func GetResult(apiKey, sessionId string) (models.Result, error) {
+	var result models.Result
 	resp, err := http.Get(
 		fmt.Sprintf("http://localhost:8080/JSON/spider/view/fullResults/?apikey=%s&scanId=%s", apiKey, sessionId))
 	if err != nil {
@@ -39,7 +40,7 @@ func GetStatus(apiKey, sessionId string) (string, error) {
 		return "", err
 	}
 
-	var result StatusResult
+	var result models.StatusResult
 	if err = json.Unmarshal(body, &result); err != nil {
 		return "", err
 	}

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/YoungGoofy/gozap/pkg/gozap/spiders"
+	"github.com/YoungGoofy/gozap/pkg/models"
 	"log"
 	"net/http"
 )
@@ -13,7 +14,7 @@ type (
 		scanner   MainScan
 		sessionId string
 	}
-	UrlsInScope []spiders.UrlsInScope
+	UrlsInScope []models.UrlsInScope
 )
 
 func NewSpider(scanner MainScan) *Spider {
@@ -25,7 +26,7 @@ func NewSpider(scanner MainScan) *Spider {
 	return &Spider{scanner: scanner /*, sessionId: sessionId*/}
 }
 
-func (s *Spider) GetSessionId() error {
+func (s *Spider) StartPassiveScan() error {
 	id, err := spiders.GetConnectionId(s.scanner.apiKey, s.scanner.url)
 	if err != nil {
 		return err
