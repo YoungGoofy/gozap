@@ -23,9 +23,6 @@ func (as *ActiveScanner) StartActiveScan() error {
 	if err != nil {
 		return err
 	}
-	//if err = utils.PostSessionCount(sessionId, "ascan"); err != nil {
-	//	return err
-	//}
 	as.sessionId = sessionId
 	return nil
 }

@@ -41,7 +41,7 @@ func EditScan(apiKey, url, action string) int {
 }
 
 func GetStatus(apiKey, sessionId string) (string, error) {
-	var status map[string]string
+	var status models.StatusResult
 	resp, err := http.Get(fmt.Sprintf("http://localhost:8080/JSON/ascan/view/status/?apikey=%s&scanId=%s", apiKey, sessionId))
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("bad request: %v", err))
@@ -54,7 +54,7 @@ func GetStatus(apiKey, sessionId string) (string, error) {
 	if err = json.Unmarshal(body, &status); err != nil {
 		return "", errors.New(fmt.Sprintf("bad unmarshal: %s", err))
 	}
-	return status["status"], nil
+	return status.Status, nil
 }
 
 func GetAlertsId(apiKey, sessionId string) ([]string, error) {
