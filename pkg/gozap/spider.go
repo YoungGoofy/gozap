@@ -18,12 +18,7 @@ type (
 )
 
 func NewSpider(scanner MainScan) *Spider {
-	//sessionId, err := GetSpiderSessionCount()
-	//if err != nil {
-	//	log.Println(err)
-	//	return nil
-	//}
-	return &Spider{scanner: scanner /*, sessionId: sessionId*/}
+	return &Spider{scanner: scanner}
 }
 
 func (s *Spider) StartPassiveScan() error {
@@ -31,9 +26,6 @@ func (s *Spider) StartPassiveScan() error {
 	if err != nil {
 		return err
 	}
-	//if err = PostSessionCount(id, "spider"); err != nil {
-	//	return err
-	//}
 	s.sessionId = id
 	return nil
 }
@@ -59,16 +51,14 @@ func (s *Spider) GetResult() (UrlsInScope, error) {
 }
 
 func (s *Spider) AsyncGetResult(ch chan<- UrlsInScope, errCh chan<- error, statusCh chan string, done <-chan struct{}) {
-	/** This method return results in runtime*/
 	var lastUrl UrlsInScope
 	maxCount := 0
 	minCount := 0
 	for {
 		select {
-		case <-done: // Проверяем, получили ли сигнал о завершении
+		case <-done:
 			return
 		default:
-			// Отправляем запрос на сервер
 			result, err := spiders.GetResult(s.scanner.apiKey, s.sessionId)
 			if err != nil {
 				errCh <- err
@@ -79,11 +69,8 @@ func (s *Spider) AsyncGetResult(ch chan<- UrlsInScope, errCh chan<- error, statu
 			} else {
 				continue
 			}
-			// Проверяем, что получены непустые данные
 			if len(urlsInScope) > 0 {
-				// Сохраняем последний элемент
 				lastUrl = urlsInScope[minCount : maxCount-1]
-				// Отправляем последний элемент по каналу
 				ch <- lastUrl
 			}
 			minCount = maxCount - 1
