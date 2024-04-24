@@ -58,3 +58,12 @@ type AlertDetail struct {
 type ListOfAlerts struct {
 	Alert []Alert `json:"alerts"`
 }
+
+type HostProgress struct {
+	Plugins []Plugin
+}
+type Plugin struct {
+	PluginName   string
+	PluginID     string
+	PluginStatus string
+}

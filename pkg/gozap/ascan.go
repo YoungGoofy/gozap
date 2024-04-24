@@ -4,18 +4,20 @@ import (
 	"errors"
 	"fmt"
 	"github.com/YoungGoofy/gozap/pkg/gozap/ascan"
+	"github.com/YoungGoofy/gozap/pkg/models"
 	"log"
 	"net/http"
 )
 
-type ActiveScanner struct {
-	scanner   MainScan
-	sessionId string
-}
+type (
+	ActiveScanner struct {
+		scanner   MainScan
+		sessionId string
+	}
+)
 
 func NewActiveScanner(s MainScan) *ActiveScanner {
-	sessionId := "1"
-	return &ActiveScanner{scanner: s, sessionId: sessionId}
+	return &ActiveScanner{scanner: s}
 }
 
 func (as *ActiveScanner) StartActiveScan() error {
@@ -85,16 +87,28 @@ func (as *ActiveScanner) GetAlertIds() ([]string, error) {
 	return ids, nil
 }
 
-func (as *ActiveScanner) ScanProgress() ([]interface{}, error) {
+func (as *ActiveScanner) ScanProgress() (models.HostProgress, error) {
 	if as.sessionId == "" {
-		return nil, errors.New("any session not found")
+		return models.HostProgress{}, errors.New("any session not found")
 	}
 	scanProgress, err := ascan.ScanProgress(as.scanner.apiKey, as.sessionId)
 	if err != nil {
-		return nil, err
+		return models.HostProgress{}, err
 	}
-	r := scanProgress.ScanProgress[1].(map[string]interface{})["HostProcess"].([]interface{})
+	r := convertInterfaceToString(scanProgress.ScanProgress[1].(map[string]interface{})["HostProcess"].([]interface{}))
 	return r, nil
+}
+
+func convertInterfaceToString(ifaces []interface{}) models.HostProgress {
+	batch := make([]models.Plugin, 0, len(ifaces))
+	for _, itemI := range ifaces {
+		var plugin models.Plugin
+		plugin.PluginName = itemI.(map[string]interface{})["Plugin"].([]interface{})[0].(string)
+		plugin.PluginID = itemI.(map[string]interface{})["Plugin"].([]interface{})[1].(string)
+		plugin.PluginStatus = itemI.(map[string]interface{})["Plugin"].([]interface{})[3].(string)
+		batch = append(batch, plugin)
+	}
+	return models.HostProgress{Plugins: batch}
 }
 
 func (as *ActiveScanner) SkipScanner(pluginId string) (string, error) {
