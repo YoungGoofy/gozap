@@ -5,8 +5,11 @@ type MainScan struct {
 	apiKey string
 }
 
-func NewMainScan(url, apiKey string) *MainScan {
-	return &MainScan{url: url, apiKey: apiKey}
+func NewMainScan(args ...string) *MainScan {
+	if len(args) == 2 {
+		return &MainScan{url: args[0], apiKey: args[1]}
+	}
+	return &MainScan{}
 }
 
 func (s *MainScan) AddUrl(url string) {
